@@ -1,0 +1,48 @@
+{
+  "journeyId": "demo-journey-001",
+  "dataSource": "demo",
+  "routes": [
+    {
+      "id": "car-a",
+      "name": "Car Route A",
+      "mode": "car",
+      "distanceKm": 11,
+      "durationMinutes": 18,
+      "estimatedEmissionsKgCO2e": 2.4,
+      "geometry": null,
+      "legs": [
+        {
+          "mode": "car",
+          "distanceKm": 11,
+          "durationMinutes": 18
+        }
+      ]
+    },
+    {
+      "id": "bus-a",
+      "name": "Bus Route",
+      "mode": "bus",
+      "distanceKm": 10,
+      "durationMinutes": 28,
+      "estimatedEmissionsKgCO2e": 0.6,
+      "geometry": null,
+      "legs": [
+        {
+          "mode": "walk",
+          "distanceKm": 0.5,
+          "durationMinutes": 6
+        },
+        {
+          "mode": "bus",
+          "distanceKm": 9,
+          "durationMinutes": 16
+        },
+        {
+          "mode": "walk",
+          "distanceKm": 0.5,
+          "durationMinutes": 6
+        }
+      ]
+    }
+  ]
+}

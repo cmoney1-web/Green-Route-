@@ -1,0 +1,20 @@
+{
+  "origin": {
+    "name": "Starting location",
+    "latitude": 53.3438,
+    "longitude": -6.2546
+  },
+  "destination": {
+    "name": "Destination",
+    "latitude": 53.3084,
+    "longitude": -6.2236
+  },
+  "departureTime": "2026-11-23T08:00:00Z",
+  "allowedModes": ["car", "bus", "bicycle", "walk"],
+  "maxDurationMinutes": 30,
+  "vehicle": {
+    "type": "petrol",
+    "occupancy": 1
+  }
+}
+
