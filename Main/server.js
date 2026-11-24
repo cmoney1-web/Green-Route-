@@ -228,8 +228,10 @@ app.post("/api/journeys/plan", (req, res) => {
       console.log("there is not routes available try again please");
       
    }
+ console.log("if you know what this means and if you do not then you have to do better if ");
+ 
 
-
+ 
 
 
 
@@ -238,3 +240,4 @@ app.post("/api/journeys/plan", (req, res) => {
 app.listen(port, () =>
   console.log("> Server is up and running on port : " + port),
 );
+
