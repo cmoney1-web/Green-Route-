@@ -1,3 +1,5 @@
 {
-  "python-envs.defaultEnvManager": "ms-python.python:system"
+  "python-envs.defaultEnvManager": "ms-python.python:system",
+  "todo-tree.general.tags": ["TODO", "FIXME", "BUG"],
+  "todo-tree.ripgrep.ripgrep": "C:/Users/Chesn/AppData/Local/Programs/Microsoft VS Code/8a14f0cc1b/resources/app/node_modules.asar.unpacked/@vscode/ripgrep-universal/bin/win32-x64/rg.exe"
 }

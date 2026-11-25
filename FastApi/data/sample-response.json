@@ -8,7 +8,7 @@
       "mode": "car",
       "distanceKm": 11,
       "durationMinutes": 18,
-      "estimatedEmissionsKgCO2e": 2.4,
+      "estimatedEmissionsKgCO2e": 2.2,
       "geometry": null,
       "legs": [
         {
@@ -24,7 +24,7 @@
       "mode": "bus",
       "distanceKm": 10,
       "durationMinutes": 28,
-      "estimatedEmissionsKgCO2e": 0.6,
+      "estimatedEmissionsKgCO2e": 0.54,
       "geometry": null,
       "legs": [
         {
@@ -43,6 +43,133 @@
           "durationMinutes": 6
         }
       ]
+    },
+    {
+      "id": "car-b",
+      "name": "Car Route B - Shorter Distance",
+      "mode": "car",
+      "distanceKm": 9,
+      "durationMinutes": 21,
+      "estimatedEmissionsKgCO2e": 1.8,
+      "geometry": null,
+      "legs": [
+        {
+          "mode": "car",
+          "distanceKm": 9,
+          "durationMinutes": 21
+        }
+      ]
+    },
+    {
+      "id": "car-c",
+      "name": "Car Route C - Fastest",
+      "mode": "car",
+      "distanceKm": 12.5,
+      "durationMinutes": 16,
+      "estimatedEmissionsKgCO2e": 2.5,
+      "geometry": null,
+      "legs": [
+        {
+          "mode": "car",
+          "distanceKm": 12.5,
+          "durationMinutes": 16
+        }
+      ]
+    },
+    {
+      "id": "bus-b",
+      "name": "Bus Route B - More Walking",
+      "mode": "bus",
+      "distanceKm": 9.5,
+      "durationMinutes": 32,
+      "estimatedEmissionsKgCO2e": 0.48,
+      "geometry": null,
+      "legs": [
+        {
+          "mode": "walk",
+          "distanceKm": 0.8,
+          "durationMinutes": 10
+        },
+        {
+          "mode": "bus",
+          "distanceKm": 8,
+          "durationMinutes": 14
+        },
+        {
+          "mode": "walk",
+          "distanceKm": 0.7,
+          "durationMinutes": 8
+        }
+      ]
+    },
+    {
+      "id": "bus-c",
+      "name": "Bus Route C - Two Buses",
+      "mode": "bus",
+      "distanceKm": 10.2,
+      "durationMinutes": 36,
+      "estimatedEmissionsKgCO2e": 0.54,
+      "geometry": null,
+      "legs": [
+        {
+          "mode": "walk",
+          "distanceKm": 0.4,
+          "durationMinutes": 5
+        },
+        {
+          "mode": "bus",
+          "distanceKm": 4,
+          "durationMinutes": 12
+        },
+        {
+          "mode": "walk",
+          "distanceKm": 0.5,
+          "durationMinutes": 6
+        },
+        {
+          "mode": "bus",
+          "distanceKm": 5,
+          "durationMinutes": 10
+        },
+        {
+          "mode": "walk",
+          "distanceKm": 0.3,
+          "durationMinutes": 3
+        }
+      ]
+    },
+    {
+      "id": "bicycle-a",
+      "name": "Cycling Route",
+      "mode": "bicycle",
+      "distanceKm": 9.8,
+      "durationMinutes": 35,
+      "estimatedEmissionsKgCO2e": 0,
+      "geometry": null,
+      "legs": [
+        {
+          "mode": "bicycle",
+          "distanceKm": 9.8,
+          "durationMinutes": 35
+        }
+      ]
+    },
+    {
+      "id": "walk-a",
+      "name": "Walking Route",
+      "mode": "walk",
+      "distanceKm": 8.5,
+      "durationMinutes": 105,
+      "estimatedEmissionsKgCO2e": 0,
+      "geometry": null,
+      "legs": [
+        {
+          "mode": "walk",
+          "distanceKm": 8.5,
+          "durationMinutes": 105
+        }
+      ]
     }
-  ]
+  ],
+  "description": "fake dataset to test"
 }

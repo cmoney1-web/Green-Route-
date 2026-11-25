@@ -75,6 +75,8 @@ def journey(body: dict):
     # FastAPI checks that the request body is a dictionary.
     # Start a new error list for every request.
     errors = []
+    
+    ## error handling code
 
     # Check the origin and destination coordinates.
     for field in ["origin", "destination"]:
@@ -217,7 +219,7 @@ def journey(body: dict):
     response["meetsTimeLimit"] = False
 
     if fastest_route is None:
-        response["recommendationReason"] = "No routes are available for the requested modes."
+        response["recommendationReason"] = "cant find any thing for this specific route"
     elif recommended_route is None:
         recommended_route = fastest_route
         response["recommendationReason"] = "The time limit is too short. Showing the fastest route."
@@ -225,7 +227,7 @@ def journey(body: dict):
         response["meetsTimeLimit"] = True
         response["recommendationReason"] = "Lowest estimated emissions within your time limit, choosing the faster route when emissions match."
 
-    # Use empty IDs when there are no routes to choose from.
+    #when no routes are avalaible all these values will appear as none
     response["fastestRouteId"] = None
     response["lowestEmissionRouteId"] = None
     response["recommendedRouteId"] = None
@@ -235,10 +237,10 @@ def journey(body: dict):
 
     if lowest_emission_route is not None:
         response["lowestEmissionRouteId"] = lowest_emission_route["id"]
-
     if recommended_route is not None:
         response["recommendedRouteId"] = recommended_route["id"]
 
     return response
- 
-            
+
+
+ #TODO: Add a routing api for this
