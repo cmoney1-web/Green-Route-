@@ -1,7 +1,9 @@
 ﻿import math
 import json
-import copy
+import os
+import httpx
 from pathlib import Path
+from dotenv import load_dotenv
 
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
@@ -15,8 +17,17 @@ data_folder = Path(__file__).resolve().parent / "data"
 with open(data_folder / "emission-factors.json", "r", ) as file:
     data = json.load(file)
 
-with open(data_folder / "sample-response.json", "r",) as file:
-    data1 = json.load(file)
+    
+    
+# Load the environment file beside main.py.
+env_file = Path(__file__).resolve().parent / "chesney.env"
+load_dotenv(env_file)
+
+#reads the key
+geoapify_api_key = os.getenv("GEOAPIFY_API_KEY")
+
+if not geoapify_api_key:
+    raise RuntimeError("Add GEOAPIFY_API_KEY to chesney.env.")
     
 
 # Calculate car emissions per person using the selected vehicle type.
@@ -56,10 +67,34 @@ def calculatebus(route):
 # bus_result = calculatebus(test_bus_route)
 # print("Bus emissions:", bus_result)
     
+#function for fetching a car route
 
-@app.get("/")
-def home():
-    return {"chesney": "yes"}
+#this loads the car route using the api 
+
+def get_car_route(origin, destination):
+    # Geoapify expects latitude,longitude for each location.
+    start = f'{origin["latitude"]},{origin["longitude"]}'
+    end = f'{destination["latitude"]},{destination["longitude"]}'
+
+    parameters = {
+        "waypoints": f"{start}|{end}",
+        "mode": "drive",
+        "format": "geojson",
+        "units": "metric",
+        "apiKey": geoapify_api_key
+    }
+
+    #if the request takes to long it stops waiting
+    with httpx.Client(timeout=15) as client:
+        response = client.get(
+            "https://api.geoapify.com/v1/routing",
+            params=parameters
+        )
+
+        response.raise_for_status()
+
+        return response.json()
+
 
 
 @app.get("/api/health/status")
@@ -75,9 +110,7 @@ def journey(body: dict):
     # FastAPI checks that the request body is a dictionary.
     # Start a new error list for every request.
     errors = []
-    
-    ## error handling code
-
+     
     # Check the origin and destination coordinates.
     for field in ["origin", "destination"]:
         location = body.get(field)
@@ -151,34 +184,105 @@ def journey(body: dict):
         
     
 
-    #the code below : # Check the journey details, calculate emissions for the requested travel modes, and return the results.
-    
-    response = copy.deepcopy(data1) # Copy the sample data so changes for this request do not affect future requests.
-    calculated_routes = []
+    # This first real-route connection supports driving.
+    if "car" not in body["allowedModes"]:
+        return JSONResponse(
+            status_code=400,
+            content={
+                "message": "Only driving is connected so far. Include car in allowedModes."
+            }
+        )
 
-    response["factorSource"] = data["source"]
-    response["factorVersion"] = data["version"]
+    #real route request now
+    try:
+        route_data = get_car_route(body["origin"], body["destination"])
+    except httpx.TimeoutException:
+        return JSONResponse(
+            status_code=504,
+            content={"message": "The routing service took too long. Try again."}
+        )
+    except httpx.HTTPStatusError:
+        # Keep the provider's request URL private because it contains the key.
+        return JSONResponse(
+            status_code=502,
+            content={"message": "The routing service rejected the request. Check the API key and quota."}
+        )
+    except httpx.RequestError:
+        return JSONResponse(
+            status_code=502,
+            content={"message": "Could not connect to the routing service."}
+        )
+    except ValueError:
+        return JSONResponse(
+            status_code=502,
+            content={"message": "The routing service returned invalid JSON."}
+        )
 
-    for route in response["routes"]:
-        # Skip transport modes the user did not request.
-        if route["mode"] not in body["allowedModes"]:
-            continue
+    # Check the returned data before trying to read its first route.
+    if not isinstance(route_data, dict) or not isinstance(route_data.get("features"), list):
+        return JSONResponse(
+            status_code=502,
+            content={"message": "The routing service returned an unexpected response."}
+        )
 
-        if route["mode"] == "car":
-            vehicle = body["vehicle"]
-            route["estimatedEmissionsKgCO2e"] = calculatecar(route, vehicle)
-            route["emissionFactor"] = data["vehicles"][vehicle["type"]]
-            route["vehicleType"] = vehicle["type"]
+    if len(route_data["features"]) == 0:
+        return JSONResponse(
+            status_code=404,
+            content={"message": "No driving route was found."}
+        )
 
-        if route["mode"] == "bus":
-            route["estimatedEmissionsKgCO2e"] = calculatebus(route)
-            route["emissionFactor"] = data["vehicles"]["bus"]
+    try:
+        first_route = route_data["features"][0]
+        properties = first_route["properties"]
+        distance_metres = properties["distance"]
+        duration_seconds = properties["time"]
+        geometry = first_route["geometry"]
+    except (KeyError, TypeError):
+        return JSONResponse(
+            status_code=502,
+            content={"message": "The routing response is missing route details."}
+        )
 
-        calculated_routes.append(route)
+    #the number must be zero or greater in order for it to work
+    for value in [distance_metres, duration_seconds]:
+        if type(value) not in (int, float) or not (0 <= value < math.inf):
+            return JSONResponse(
+                status_code=502,
+                content={"message": "The routing response contains an invalid distance or time."}
+            )
 
-    response["routes"] = calculated_routes
-  
-    
+    distance_km = distance_metres / 1000
+    duration_minutes = duration_seconds / 60
+
+    # Keep the field names your calculator and recommendation loops already use.
+    route_dictionary = {
+        "id": "geoapify-car",
+        "name": "Driving Route",
+        "mode": "car",
+        "distanceKm": distance_km,
+        "durationMinutes": duration_minutes,
+        "geometry": geometry,
+        "legs": [
+            {
+                "mode": "car",
+                "distanceKm": distance_km,
+                "durationMinutes": duration_minutes
+            }
+        ]
+    }
+
+    # Calculate estimated emissions using the user's vehicle and occupancy.
+    vehicle = body["vehicle"]
+    route_dictionary["estimatedEmissionsKgCO2e"] = calculatecar(route_dictionary, vehicle)
+    route_dictionary["vehicleType"] = vehicle["type"]
+    route_dictionary["emissionFactor"] = data["vehicles"][vehicle["type"]]
+
+    # Return the real driving route to the existing recommendation loops.
+    response = {
+        "dataSource": "geoapify",
+        "routes": [route_dictionary]
+    }
+
     # Find the fastest route.
     fastest_route = None
     for route in response["routes"]:
@@ -243,4 +347,4 @@ def journey(body: dict):
     return response
 
 
- #TODO: Add a routing api for this
+# TODO: Connect real cycling, walking and scheduled public transport routes.

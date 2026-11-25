@@ -1,0 +1,30 @@
+{
+    "dataSource": "geoapify",
+    "routes": [
+        {
+            "id": "geoapify-car",
+            "name": "Driving Route",
+            "mode": "car",
+            "distanceKm": 7.244,
+            "durationMinutes": 13.2517,
+            "legs": [
+                {
+                    "mode": "car",
+                    "distanceKm": 7.244,
+                    "durationMinutes": 13.2517
+                }
+            ],
+            "estimatedEmissionsKgCO2e": 1.4488,
+            "vehicleType": "petrol",
+            "emissionFactor": {
+                "value": 0.2,
+                "unit": "kg CO2e per vehicle-km"
+            }
+        }
+    ],
+    "meetsTimeLimit": true,
+    "recommendationReason": "Lowest estimated emissions within your time limit, choosing the faster route when emissions match.",
+    "fastestRouteId": "geoapify-car",
+    "lowestEmissionRouteId": "geoapify-car",
+    "recommendedRouteId": "geoapify-car"
+}
